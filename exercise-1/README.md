@@ -1,4 +1,4 @@
-# Exercise 3
+# Exercise 1
 
 In this exercise, you'll practice working with CSS properties and layouts. Note, the testing for this problem are driven by **evaluating screenshots** -- make sure to understand the [testing](#testing) section below before making too much progress.
 
