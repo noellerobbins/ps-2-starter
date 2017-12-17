@@ -15,7 +15,6 @@
         "inline-css": "^2.2.2",
         "jest-image-snapshot": "^1.0.1",
         "md5": "^2.2.1",
-        "puppeteer": "^0.13.0",
         "stylelint": "^8.0.0",
         "stylelint-config-recommended": "^1.0.0"
     },
