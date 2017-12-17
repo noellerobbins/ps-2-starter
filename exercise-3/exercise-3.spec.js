@@ -13,7 +13,7 @@ const html = fs.readFileSync(__dirname + '/index.html', 'utf-8');
 describe('Source code is valid', () => {
     test('CSS validates without errors', async() => {
         let cssValidityObj = await stylelint.lint({
-            files: 'exercise-1/css/style.css'
+            files: __dirname + 'css/style.css'
         });
         expect(cssValidityObj).cssLintResultsContainsNoErrors();
     })

@@ -33,7 +33,7 @@ describe('Source code is valid', () => {
 
     test('CSS validates without errors', async () => {
         let cssValidityObj = await stylelint.lint({
-            files: 'exercise-2/css/style.css'
+            files: __dirname + 'css/style.css'
         });
         expect(cssValidityObj).cssLintResultsContainsNoErrors();
     })
