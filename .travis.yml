@@ -3,6 +3,5 @@ node_js:
   - "8"
 before_script:
   - "npm install jest"
-  - "npm install puppeteer"
 os:
   - osx

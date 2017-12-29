@@ -4,14 +4,117 @@ const cheerio = require('cheerio')
 const htmllint = require('htmllint');
 const stylelint = require('stylelint');
 const inlineCss = require('inline-css'); //for css testing
-
-const {toMatchImageSnapshot} = require('jest-image-snapshot');
+const css = require('css');
 
 //load the HTML file, since we're gonna need it.
 const html = fs.readFileSync(__dirname + '/index.html', 'utf-8');
-//absolute path for relative loading (if needed)
-const baseDir = 'file://' + __dirname + '/';
 
+// load the css file to parse
+const cssFile = fs.readFileSync(__dirname + '/css/style.css', 'utf-8');
+let options = {}
+let cssObj = css.parse(cssFile, options);
+
+
+describe('Testing CSS', () => {
+	let $; //cheerio instance
+	
+	// Inline the stylesheet
+    beforeAll( () => {
+        let options = {
+        	extraCss:cssFile, 
+        	url:'file://'+__dirname + '/'
+        }
+        return inlineCss(html, options)
+        		.then(function(htmlStyled) { 
+    	    	$ = cheerio.load(htmlStyled);        	
+        	}).catch(function(err) {
+	        	console.log(err)
+        });
+    })
+	test('1. Box-sizing is set to border-box', () => {
+		let body = $('body');
+		expect(body.css('box-sizing')).toEqual('border-box');
+		
+	})
+	
+	test('2. Spacing set around main element', () => {
+		let main = $('main');
+		expect(main.css('width')).toEqual('80%');
+		expect(main.css('margin-left')).toEqual('auto');		
+		expect(main.css('margin-right')).toEqual('auto');		
+		expect(main.css('margin-top')).toEqual('5em');				
+		
+	})
+	
+	test('3. Set appropriate colors, fonts, and sizes:', () => {
+		let body = $('body');
+		let h1 = $("h1")
+		expect(body.css('color')).toEqual('#535353');
+		expect(h1.css('color')).toEqual('#4b2e83');
+		expect(h1.css('font-size')).toEqual('2.5rem');		
+		expect(body.css('font-family')).toMatch('Open Sans');	
+		
+	})	
+	
+	test("4. Style nav bar", () => {
+		let nav = $('nav')
+		expect(nav.css('position')).toEqual('fixed')
+		expect(nav.css('background-color')).toEqual('#4b2e83')
+		expect(nav.css('padding')).toEqual('.75rem')		
+	})
+	
+	test("5. Style nav bar links", () => {
+		let links = $('nav a')
+		expect(links.css('color')).toEqual('white')
+		expect(links.css('text-decoration')).toEqual('none')
+	})
+	
+	test("6. Display list items", () => {
+		let lis = $('nav li')
+		expect(lis.css('display')).toEqual('inline')
+		expect(lis.css('padding')).toEqual('1rem')
+		let ul = $('nav ul')
+		expect(ul.css('margin')).toEqual("0px")
+		expect(ul.css('padding-top')).toEqual('.5rem')		
+	})
+	
+	test("7. Display search box", () => {
+		let search = $('div.searchBox')
+		expect(search.css('float')).toEqual('right')
+		let searchInput = $('div.searchBox input')
+		expect(searchInput.css('font-size')).toEqual('1rem')
+		expect(searchInput.css('padding')).toEqual('.5rem')		
+	})	
+	
+	test("8. Font awesome icon styles", () => {
+		let fa = $('.fa')
+		expect(fa.css('font-size')).toEqual("1.5rem")
+		expect(fa.css('padding')).toEqual(".3rem")	
+		expect(fa.attr('aria-label')).toMatch("search")
+	})		
+	
+	test("9. Test hover effects", () => {
+ 		let hoverRule = cssObj.stylesheet.rules.filter((d) => d.type === "rule" && d.selectors.indexOf("a:hover") !== -1);
+ 		let focusRule = cssObj.stylesheet.rules.filter((d) => d.type === "rule" && d.selectors.indexOf("a:focus") !== -1);
+ 		let colorRule = hoverRule[0].declarations.filter((d) => d.property === "color")[0]
+ 		let borderRule = hoverRule[0].declarations.filter((d) => d.property === "border-bottom")[0]
+ 		expect(hoverRule.length).toBeGreaterThan(0)
+ 		expect(focusRule.length).toBeGreaterThan(0) 		
+		expect(colorRule.value).toEqual('#b7a57a')
+		expect(borderRule.value).toEqual('.6rem solid #b7a57a')
+	})		
+	
+	test("10. Add and style logo", () => {
+		let img = $('.logo')
+		expect(img.css('background-image')).toEqual("url('../img/ischool-symbol-white.png')")
+		expect(img.css('padding')).toEqual('0 1em')
+		expect(img.css('background-size')).toEqual('contain')
+		expect(img.css('background-repeat')).toEqual('no-repeat')
+		expect(img.css('background-position')).toEqual('left')
+		
+	})
+	
+})
 describe('Source code is valid', () => {
     test('HTML validates without errors', async () => {
         const lintOpts = {
@@ -21,8 +124,8 @@ describe('Source code is valid', () => {
             'doctype-html5': true,
             'html-req-lang': true,
             'line-end-style': false, //either way
-            'indent-style': 'nonmixed', //can mix/match
-            'indent-width': 4, //don't need to beautify
+            'indent-style': 'nonmixed', // need to choose
+            'indent-width': 4, //do need to beautify
             'class-style': 'none', //I like dashes in classnames
             'img-req-alt': false, //for this test; captured later!
         }
@@ -39,81 +142,10 @@ describe('Source code is valid', () => {
     })
 });
 
-describe('Produces the expected visual output', () => {
-    const puppeteer = require('puppeteer'); //use puppeteer for screencaptures
-    let browser,
-        page;
-
-    beforeAll(async () => {
-        //launch chrome headless, navigate to page
-        browser = await puppeteer.launch();
-        page = await browser.newPage();
-        await page.goto(baseDir + '/index.html'); //literally load the file
-    });
-
-    test('Fresh page matches reference image', async () => {
-        await page.setViewport({
-            width: 900,
-            height: 600
-        });
-        let capture = await page.screenshot();
-        expect(capture).toMatchImageSnapshot({
-            customDiffConfig: {
-                threshold: 0.001 //very small threshold
-            }
-        });
-    }, 10000)
-
-    test('Includes hover effects', async () => {
-        await page.hover('a[href="#"]'); //check the first link
-
-        await page.setViewport({
-            width: 900,
-            height: 200
-        });
-        let capture = await page.screenshot();
-        expect(capture).toMatchImageSnapshot({
-            customDiffConfig: {
-                threshold: 0.001 //very small threshold
-            }
-        });
-    }, 10000)
-
-    test('Shows skip link', async () => {
-        await page.reload();
-        await page.keyboard.press('Tab'); //tab to skip link (should be first!)
-
-        await page.setViewport({
-            width: 900,
-            height: 200
-        });
-        let capture = await page.screenshot({
-            clip: {
-                x: 0,
-                y: 0,
-                width: 400,
-                height: 100
-            }
-        });
-        expect(capture).toMatchImageSnapshot({
-            customDiffConfig: {
-                threshold: 0.001 //very small threshold
-            }
-        });
-    }, 10000)
-
-    afterAll(async () => {
-        //close chrome headless
-        browser.close();
-    });
-})
 
 
 //Custom code validation matchers (for error output)
 expect.extend({
-    //image matching
-    toMatchImageSnapshot,
-
     //using htmllint
     htmlLintResultsContainsNoErrors(validityObj) {
         const pass = validityObj.length === 0;

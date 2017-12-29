@@ -1,23 +1,2 @@
-/* Setup box-sizing */
-
-html {
-    height: 100%;
-    box-sizing: border-box;
-}
-
-*,
-*:before,
-*:after {
-    box-sizing: inherit;
-}
-
-body {
-    height: 100%;
-    margin: 0;
-    font-family: "Lato", "Helvetica Neue", "Helvetica", sans-serif;
-    display: flex;
-    flex-direction: column;
-}
-
-
 /* Your CSS here /*
+

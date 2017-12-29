@@ -4,12 +4,15 @@ const cheerio = require('cheerio')
 const htmllint = require('htmllint');
 const stylelint = require('stylelint');
 const inlineCss = require('inline-css'); //for css testing
-
-const {toMatchImageSnapshot} = require('jest-image-snapshot');
+const css = require('css');
 
 //load the HTML file, since we're gonna need it.
-const baseDir = 'file://' + __dirname + '/';
 const html = fs.readFileSync(__dirname + '/index.html', 'utf-8');
+
+// load the css file to parse
+const cssFile = fs.readFileSync(__dirname + '/css/style.css', 'utf-8');
+let options = {}
+let cssObj = css.parse(cssFile, options);
 
 describe('Source code is valid', () => {
     test('HTML validates without errors', async() => {
@@ -38,58 +41,85 @@ describe('Source code is valid', () => {
     })
 });
 
-describe('Produces the expected visual output', () => {
-    const puppeteer = require('puppeteer'); //use puppeteer for screencaptures
-    let browser,
-        page;
-
-    beforeAll(async() => {
-        //launch chrome headless, navigate to page
-        browser = await puppeteer.launch();
-        page = await browser.newPage();
-        await page.goto(baseDir + '/index.html'); //literally load the file
-    });
-
-    test('Test screenshot matches reference image on wide screen', async() => {
-        await page.setViewport({
-            width: 1200,
-            height: 768
-        }); //main image
-        let capture = await page.screenshot();
-        expect(capture).toMatchImageSnapshot({
-            customDiffConfig: {
-                threshold: 0.001 //very small threshold
-            }
+describe('Testing exercise implementation', () => {
+	// Inline the stylesheet
+    beforeAll( () => {
+        let options = {
+        	extraCss:cssFile, 
+        	url:'file://'+__dirname + '/'
+        }
+        return inlineCss(html, options)
+        		.then(function(htmlStyled) { 
+    	    	$ = cheerio.load(htmlStyled);        	
+        	}).catch(function(err) {
+	        	console.log(err)
         });
+    })
+	test('1a. Create a parent div with class "container"', () => {
+		let container = $('.container');
+		expect(container.css('display')).toEqual('flex');
+	})
+	test('1b. Sections have appropriate flex behavior', () => {
+		let section1 = $('section:first-of-type');
+		expect(section1.css('flex-basis')).toEqual('240px');
+		let section2 = $('section:nth-of-type(2)');
+		expect(section2.css('flex-grow')).toEqual('1');		
+		expect(section2.css('background-color')).toEqual('#eee')
+		let section3 = $('section:nth-of-type(3)');
+		expect(section3.css('flex-basis')).toEqual("180px")
+		expect(section3.css('flex-shrink')).toEqual("0")	
+		let sections = $("section")
+		expect(sections.css('padding')).toEqual("1em")	
+	})
+	
+	test('2. Second section has a flexbox container that contains cards', () => {
+		let container = $('section:nth-of-type(2) > div')
+		expect(container.css('display')).toEqual('flex')
+		expect(container.css('flex-wrap')).toEqual('wrap')
+		let cards = $('.card-item')
+		cards.each((index, card) => {
+			expect($(card).css("flex")).toEqual('0 0 250px')
+			expect($(card).css("background-color")).toEqual('white')
+			expect($(card).css("margin")).toEqual('.5rem')
+		})
+	})
+	
+	test('3. Style the cards', () => {
 
-    }, 10000)
+		let cardContent = $('.card-content')
+		cardContent.each((index, content) => {
+			expect($(content).css("padding")).toEqual(".5rem 1rem")
+		})
 
-    test('Test screenshot matches reference image on narrow screen', async() => {
-        await page.setViewport({
-            width: 800,
-            height: 1000
-        }); //skinny (full-paging)
-        let capture = await page.screenshot();
-        expect(capture).toMatchImageSnapshot({
-            customDiffConfig: {
-                threshold: 0.001 //very small threshold
-            }
-        });
-
-    }, 10000)
-
-    afterAll(async() => {
-        //close chrome headless
-        browser.close();
-    });
+		let cards = $('.card-item')		
+		
+		cards.each((index, card) => {
+			expect($(card).css("border-radius")).toEqual('6px')
+			expect($(card).css("box-shadow")).toEqual('0 1px 3px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.23)')
+		})
+		
+		let imgs = $('.card-item img') 
+		imgs.each((index, img) => {
+			expect($(img).css('border-radius')).toEqual("6px 6px 0 0")
+		})
+	})
+	
+	test('4. Make the `body` into a flexbox', () => {
+		let body = $("body")
+		let html = $('html')
+		let main = $('main')
+		expect(body.css('display')).toEqual('flex')
+		expect(body.css('flex-direction')).toEqual('column')		
+		expect(main.css('flex-grow')).toEqual("1")
+		expect(body.css('height')).toEqual("100%")
+		expect(html.css('height')).toEqual("100%")
+		
+	})
 })
 
 
 //Custom code validation matchers (for error output)
 expect.extend({
-    //image matching
-    toMatchImageSnapshot,
-
     //using htmllint
     htmlLintResultsContainsNoErrors(validityObj) {
         const pass = validityObj.length === 0;

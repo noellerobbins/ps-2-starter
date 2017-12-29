@@ -1,6 +1,7 @@
 # Exercise 3
 
-In this exercise, you'll practice using **media queries** to create reponsive web pages.
+In this exercise, you'll practice using **media queries** to create reponsive web pages. Note, the test suite parses your CSS files, so you'll have to use the specified classnames/property names (even though there are many possible implementations of the desired behavior). 
+
 
 To complete the exercise, you will need to add rules to the included `css/style.css` file in order to style the `index.html` file so that it has has the following responsive appearance:
 
@@ -28,31 +29,31 @@ Instructions for achieving this appearance are detailed below:
 
 2. Following a mobile-first approach, the "default" styling will be for extra-small screens.
 
-    - The `body` should have `.5rem` of space around its content. The background should be a nice blue (`#93b8d7`), and the text content `white`.
+    - The `body` should have `.5rem` of space _around_ its content. The background should be a nice blue (`#93b8d7`), and the text color should be `white`.
 
-    - The "navigation" icon links (top-right corner) should also be `white` and increased in size to `2.5rem`. Add `.5em` of space between each one (the space is measured in `em` so it wil adjust with the icon sizes!). _Hints: don't change the font size of the `.fa` element directly, and don't put margins on both sides_. 
+    - The all **links** inside of the `nav` element should be `white` and increased in size to `2.5rem`. Add `.5em` of margin-right to each one. (the space is measured in `em` so it wil adjust with the icon sizes!).
 
-        Additionally, the "social media" links should **not** be shown at this screen size. _Hint_: use the `display` property.
+    - Additionally, the "social media" links should **not** be shown at this screen size. _Hint_: use the `display` property on the `social-links` element.
     
-    - The page's text main content should be _centered_. It should use the included `Kaushan Script` font family, with a fallback to the generic `fantasy` family if that isn't available (on my computer, this default is [Papyrus](https://www.fastcodesign.com/3055865/meet-the-man-who-created-papyrus-the-worlds-other-most-hated-font). You're welcome.)
+    - The page's `main` content should have it's text aligned to the _center_. It should use the included `Kaushan Script` font family, with a fallback to the generic `fantasy` family if that isn't available (on my computer, this default is [Papyrus](https://www.fastcodesign.com/3055865/meet-the-man-who-created-papyrus-the-worlds-other-most-hated-font). You're welcome.)
+        
+	- The main content should also have have a margin above it equal to `23` percent of the [viewport height](https://developer.mozilla.org/en-US/docs/Web/CSS/length#Viewport-percentage_lengths). This is an example of using CSS units to allow the the text to stay more or less vertically centered as the device size changes. Note that a Flexbox would be a more robust approach to centering content vertically.
 
-        The first line (top-level heading) should have a font-size of `4rem`, and the second line should have a font-size of `2rem`. The second line should have a `2em` margin above it.
-
-        The main content should have have a margin above it equal to `23` percent of the [viewport height](https://developer.mozilla.org/en-US/docs/Web/CSS/length#Viewport-percentage_lengths). This is an example of using CSS units to allow the the text to stay more or less vertically centered as the device size changes. Note that a Flexbox would be a more robust approach to centering content vertically.
-
+	- The first line (top-level heading) should have a font-size of `4rem`, and the second line should have a font-size of `2rem`. The second line should have a `2em` margin above it.
+    
     - The footer (an image credit) should **not** be displayed, since there is no image!
 
-The following test should now pass:
+All of the following test should now pass:
 
-> _on extra-small width screens_
+> _2. The default mobile-first styles are properly applied_
 
 3. Add a _media query_ so that the styling changes on devices with a screen width of **`598px` or greater**. You can test your changes by resizing the browser window or using the [device toolbar](https://developers.google.com/web/tools/chrome-devtools/device-mode/emulate-mobile-viewports) in the Chrome developer tools.
 
-    - At this size, the "hamburger menu" icon should disappear, and the social media links should be shown instead. _Hint:_ again, use the `display` property!
+    - At this size, the "hamburger menu" icon should disappear, and the social media links should be shown instead. _Hint:_ again, use the `display` property (and set it to `block`)!
 
-The following test should now pass:
+The following tests should now all pass:
 
-> _on small width screens_
+> _3. Media queries for small sized screens (598px or greater)"_
 
 4. Add another _media query_ so that the styling changes on devices with a screen width of **`768px` or greater**.
 
@@ -60,11 +61,11 @@ The following test should now pass:
 
     - Because there is now an image, you should also display the image credit (the footer) at this size.
 
-    - The background image can make the text a little hard to read. Improve this by adding a [text-shadow](https://developer.mozilla.org/en-US/docs/Web/CSS/text-shadow). The shadow should have `1px` offset in each direction, and be colored a very dark blue `#153c43`.
+    - The background image can make the text a little hard to read. Improve this by adding a [text-shadow](https://developer.mozilla.org/en-US/docs/Web/CSS/text-shadow) to your `main` element. The shadow should have `1px` offset in each direction, and be colored a very dark blue `#153c43`.
 
 The following test should now pass:
 
-> _on medium width screens_    
+> _4. Media queries for medium sized screens (768px or greater)_    
 
 5. Add another _media query_ so that on large devices (screen width **`992px` or greater**), the styling changes yet again:
 
@@ -72,11 +73,11 @@ The following test should now pass:
 
     - On large desktops like this size, users generally have a mouse so don't need large icons to tap on. Change the navigation links to have a smaller font size of `1.5rem`
 
-    - There is also more space, so you should increase the text size to `5rem` for the first line and `3rem` for the second.
+    - There is also more space, so you should increase the text size to `5rem` for the first level headers and `3rem` for the second level headers.
 
-The following test should now pass:
+The following tests should now pass:
 
-> _on large width screens_    
+> _5. Media queries for large sized screens (992px or greater)_    
 
 6. Finally, add one more _media query_ for extra-large devices (screen width **`1200px` or greater**).
 
@@ -84,23 +85,12 @@ The following test should now pass:
 
 The following test should now pass:
 
-> _on very large width screens_    
+> _"6. Media queries for extra-large sized screens (1200px or greater)"_    
 
 ## Testing
-This exercise includes a test suite to verify that the outputted web page looks as expected. Note that this uses pixel-based image comparison, so may not fully reflect your solution's accuracy. _This test suite has been tested on Mac machines_.
+This exercise includes a test suite to verify that the outputted web page looks as expected. Because the CSS parsing isn't exhaustive, make sure to carefully read the instructions, and examine error messages (there may be some issues with single v.s. double quotes, for example).
 
-If you haven't already, you will need to install an additional library called [Puppeteer](https://github.com/GoogleChrome/puppeteer). Note that this it will download a recent version of Chromium (~71Mb Mac, ~90Mb Linux, ~110Mb Win)
-
-```bash
-# install globally so only needed once
-npm install -g puppeteer
-
-# make available to this project
-npm link puppeteer
-```
-
-You can then run the test suite with. Note that it can take up to **1 minute** for this suite to run completely.
 
 ```bash
-jest exercise-1
+jest exercise-3 # from parent directory
 ```
