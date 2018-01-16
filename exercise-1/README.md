@@ -70,7 +70,8 @@ Instructions for achieving this appearance are detailed below. Note that you wil
 This exercise includes a set of unit tests to help check your work. You can run the test suite using
 
 ```bash
-jest exercise-1
+# Run from the *parent* directory
+jest exercise-1.spec.js
 ```
 
 Note that not all aspects of the exercise are necessarily included in unit tests.

@@ -92,5 +92,6 @@ This exercise includes a test suite to verify that the outputted web page looks 
 
 
 ```bash
-jest exercise-3 # from parent directory
+# Run from the *parent* directory
+jest exercise-3.spec.js
 ```
